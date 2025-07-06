@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Simple Gun Shooting Game</title>
+<title>Gun Game Fix</title>
 <style>
   body {
     margin: 0; background: #222; overflow: hidden;
@@ -59,18 +59,17 @@
   const enemies = [];
   let score = 0;
 
-  // Controls
   const keys = {};
 
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', e => {
     keys[e.key.toLowerCase()] = true;
   });
-  document.addEventListener('keyup', (e) => {
+
+  document.addEventListener('keyup', e => {
     keys[e.key.toLowerCase()] = false;
   });
 
-  // Mouse aiming and shooting
-  canvas.addEventListener('mousedown', (e) => {
+  canvas.addEventListener('mousedown', e => {
     shootBullet(e);
   });
 
@@ -79,7 +78,6 @@
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
 
-    // Calculate direction vector from player to mouse
     const angle = Math.atan2(mouseY - player.y, mouseX - player.x);
     const speed = 8;
 
@@ -96,22 +94,20 @@
     gunSound.play();
   }
 
-  // Enemy spawn every 2 seconds
   function spawnEnemy() {
     const size = 20;
-    // Spawn on random edge
     const edge = Math.floor(Math.random() * 4);
     let x, y;
-    if (edge === 0) { // top
+    if (edge === 0) {
       x = Math.random() * canvas.width;
       y = -size;
-    } else if (edge === 1) { // right
+    } else if (edge === 1) {
       x = canvas.width + size;
       y = Math.random() * canvas.height;
-    } else if (edge === 2) { // bottom
+    } else if (edge === 2) {
       x = Math.random() * canvas.width;
       y = canvas.height + size;
-    } else { // left
+    } else {
       x = -size;
       y = Math.random() * canvas.height;
     }
@@ -127,7 +123,6 @@
   setInterval(spawnEnemy, 2000);
 
   function update() {
-    // Move player
     player.dx = 0; player.dy = 0;
     if (keys['w'] || keys['arrowup']) player.dy = -player.speed;
     if (keys['s'] || keys['arrowdown']) player.dy = player.speed;
@@ -137,39 +132,32 @@
     player.x += player.dx;
     player.y += player.dy;
 
-    // Clamp player inside canvas
     if (player.x < player.size / 2) player.x = player.size / 2;
     if (player.x > canvas.width - player.size / 2) player.x = canvas.width - player.size / 2;
     if (player.y < player.size / 2) player.y = player.size / 2;
     if (player.y > canvas.height - player.size / 2) player.y = canvas.height - player.size / 2;
 
-    // Move bullets
     for (let i = bullets.length - 1; i >= 0; i--) {
       const b = bullets[i];
       b.x += b.speedX;
       b.y += b.speedY;
-
-      // Remove bullet if off screen
       if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) {
         bullets.splice(i, 1);
       }
     }
 
-    // Move enemies towards player
     enemies.forEach(enemy => {
       const angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
       enemy.x += Math.cos(angle) * enemy.speed;
       enemy.y += Math.sin(angle) * enemy.speed;
     });
 
-    // Check bullet-enemy collisions
     for (let i = enemies.length - 1; i >= 0; i--) {
       const enemy = enemies[i];
       for (let j = bullets.length - 1; j >= 0; j--) {
         const b = bullets[j];
         const dist = Math.hypot(enemy.x - b.x, enemy.y - b.y);
         if (dist < enemy.size / 2 + b.size / 2) {
-          // Enemy hit
           enemies.splice(i, 1);
           bullets.splice(j, 1);
           score++;
@@ -184,13 +172,11 @@
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw player
     ctx.fillStyle = player.color;
     ctx.beginPath();
     ctx.arc(player.x, player.y, player.size / 2, 0, Math.PI * 2);
     ctx.fill();
 
-    // Draw bullets
     bullets.forEach(b => {
       ctx.fillStyle = b.color;
       ctx.beginPath();
@@ -198,7 +184,6 @@
       ctx.fill();
     });
 
-    // Draw enemies
     enemies.forEach(enemy => {
       ctx.fillStyle = enemy.color;
       ctx.beginPath();
@@ -210,6 +195,7 @@
   function gameLoop() {
     update();
     draw();
+    document.getElementById('score').textContent = 'Score: ' + score;
     requestAnimationFrame(gameLoop);
   }
 
